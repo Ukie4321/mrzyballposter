@@ -1,0 +1,27 @@
+name: Generate Image List
+
+on:
+  push:
+    paths:
+      - "images/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Generate list.json
+        run: |
+          echo "[" > list.json
+          ls images | grep -v txt | sed 's/^/  "/; s/$/",/' >> list.json
+          echo "]" >> list.json
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add list.json
+          git commit -m "Auto update list.json" || echo "No changes"
+          git push
